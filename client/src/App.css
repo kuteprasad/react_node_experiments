@@ -1,0 +1,14 @@
+.searchbar {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.searchbar input {
+  width: 100%;
+}
+
+.searchbar button {
+  width: 100%;
+}

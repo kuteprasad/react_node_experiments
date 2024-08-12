@@ -1,0 +1,15 @@
+some imp commands (MacOS specific, may be different for windows/Linux)...
+
+1. to kill any port on macOS
+>>> npx kill-port 5432
+
+2. to create new database user (here username is 'postgres')
+
+>>> /opt/homebrew/opt/postgresql@16/bin/createuser -s postgres
+
+3. to solve npm ssl error 
+>>> npm set strict-ssl false
+
+
+
+remember for configure package.json before cloning into new pc
