@@ -1,52 +1,30 @@
-import { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 
 function App() {
-  const [msg, setMsg] = useState('');
+  const [meetLink, setMeetLink] = useState('');
 
-  const onSubmitHandler = async (event) => {
-    event.preventDefault();
-
-    const email = event.target.email.value;
-    const password = event.target.password.value;
-
-    try {
-      const response = await axios.post('/api/login', {
-        email: email,
-        password: password
-      }, {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = response.data;
-      if (data.success) {
-        setMsg('Login successful');
-      } else {
-        setMsg('Login unsuccessful');
-      }
-    } catch (error) {
-      console.error('Error during login:', error);
-      setMsg('Login unsuccessful');
-    }
+  const createMeet = async () => {
+    const response = await fetch('http://localhost:3000/create-meet', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const data = await response.json();
+    setMeetLink(data.meetLink);
   };
 
   return (
-    <div className="login-form">
-      <form onSubmit={onSubmitHandler}>
+    <div>
+      <button onClick={createMeet}>Create Google Meet Link</button>
+      {meetLink && (
         <div>
-          <label htmlFor="email">Email:</label>
-          <input type="email" name="email" id="email" required />
+          <p>Meet Link: {meetLink}</p>
+          <a href={meetLink} target="_blank" rel="noopener noreferrer">
+            <button>Join Now</button>
+          </a>
         </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input type="password" name="password" id="password" required />
-        </div>
-        <button type="submit">Login</button>
-      </form>
-      {msg && <h1>{msg}</h1>}
+      )}
     </div>
   );
 }
