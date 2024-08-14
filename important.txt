@@ -10,6 +10,5 @@ some imp commands (MacOS specific, may be different for windows/Linux)...
 3. to solve npm ssl error 
 >>> npm set strict-ssl false
 
-
-
 remember for configure package.json before cloning into new pc
+
