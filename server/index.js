@@ -1,9 +1,16 @@
-const fs = require('fs').promises;
-const path = require('path');
-const process = require('process');
-const {authenticate} = require('@google-cloud/local-auth');
-const {SpacesServiceClient} = require('@google-apps/meet').v2;
-const { auth } = require('google-auth-library');
+// const fs = require('fs').promises;
+// const path = require('path');
+// const process = require('process');
+// const {authenticate} = require('@google-cloud/local-auth');
+// const {SpacesServiceClient} = require('@google-apps/meet').v2;
+// const { auth } = require('google-auth-library');
+import { promises as fs } from 'fs';
+import path from 'path';
+import process from 'process';
+import { authenticate } from '@google-cloud/local-auth';
+import { SpacesServiceClient } from '@google-apps/meet';
+import { auth } from 'google-auth-library';
+
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/meetings.space.created'];
