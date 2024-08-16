@@ -10,7 +10,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@google-apps/meet": "^0.3.0",
     "@google-cloud/local-auth": "^2.1.0",
     "body-parser": "^1.20.2",
     "concurrently": "^8.2.2",
@@ -27,7 +26,6 @@
     "passport": "^0.7.0",
     "passport-google-oauth2": "^0.2.0",
     "passport-local": "^1.0.0",
-    "path": "^0.12.7",
-    "pg": "^8.12.0"
+    "path": "^0.12.7"
   }
 }

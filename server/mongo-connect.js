@@ -1,31 +1,24 @@
-// const { MongoClient } = require("mongodb");
-import { MongoClient } from "mongodb";
+import {MongoClient} from "mongodb";
+
 import env from "dotenv";
-// Replace the uri string with your MongoDB deployment's connection string.
 
 env.config();
-var uri = process.env.MONGO_URL ;
+
+const uri = process.env.MONGO_URI;
 
 const client = new MongoClient(uri);
 
-async function run() {
+async function connectToDB() {
   try {
-    await client.connect();
-    // database and collection code goes here
-   
-const db = client.db("sample_guides");
-const coll = db.collection("planets");
-
-const cursor = coll.find(
- { orderFromSun: { $gt: 2 } }, { orderFromSun: { $lt: 5 } 
-});
-
-// iterate code goes here
-await cursor.forEach(console.log);
-
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+  await client.connect();
+  const db = client.db("mydb");
+  console.log("connected to mongoDB Atlas");
+  
+  return db;
+  } catch (error) {
+    console.log(error);
+    throw new Error(error);
   }
 }
-run().catch(console.dir);
+
+export default connectToDB;
