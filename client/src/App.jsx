@@ -23,9 +23,14 @@ function App() {
   const  handleLogin = async () => {
     console.log("handleLogin called");
     console.log(info);
+
+   const obj = {
+      username: info.email,
+      password: info.password
+    }
     
      try {
-      const res = await axios.post('/api/login', info);
+      const res = await axios.post('/api/login', obj);
 
       setStatus(res.data.status);
      } catch (error) {
