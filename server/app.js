@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import session from "express-session";
 import passport from 'passport';
-import LocalStrategy from 'passport-local';
+import { Strategy  } from 'passport-local';
 import env from 'dotenv';
 import { ObjectId } from 'mongodb';
 
@@ -43,56 +43,151 @@ let db;
   }
 } )();
 
-passport.use('local', new LocalStrategy(
-  { usernameField: 'email' }, // Specify 'email' instead of 'username'
-  function(username, password, done) {
-    console.log("passport local : ", username, password);
-    
-    db.collection('users').findOne({ email: username }, function (err, user) {
-      console.log(user);
-      
-      if (err) { return done(err); }
-      if (!user) { return done(null, false); }
-      if ( user.password != password) { return done(null, false); }
-      return done(null, user);
-    });
-  }
-));
+// passport.use('local', new LocalStrategy(
+//   { usernameField: 'email' },  // Specify the username field to be 'email'
+//   function(username, password, done) {
+//     console.log("Received credentials:", username, password);
 
-passport.serializeUser(function(user, done) {
-  done(null, user.id);
-});
+//     db.collection('users').findOne({ email: username }, function (err, user) {
+//       if (err) { 
+//         console.error("Error finding user:", err);
+//         return done(err); 
+//       }
+//       if (!user) { 
+//         console.log("User not found");
+//         return done(null, false, { message: 'Incorrect email.' }); 
+//       }
 
-passport.deserializeUser(function(id, done) {
-  db.collection('users').findOne({_id : new ObjectId(id)}, function (err, user) {
-    done(err, user);
-  });
-});
+//       // Direct string comparison
+//       if (user.password !== password) { 
+//         console.log("Password mismatch");
+//         return done(null, false, { message: 'Incorrect password.' });
+//       }
+
+//       console.log("Authentication successful");
+//       return done(null, user);
+//     });
+//   }
+// ));
+
+
+
+// // Use email instead of id
+// passport.serializeUser((user, done) => {
+//   done(null, user.email);  // Serialize with email
+// });
+
+// passport.deserializeUser((email, done) => {
+//   db.collection('users').findOne({ email: email }, (err, user) => {
+//     done(err, user);  // Deserialize by email
+//   });
+// });
 
 // app.post('/login', 
 //   passport.authenticate('local', { failureRedirect: '/login' }),
 //   function(req, res) {
 //     res.redirect('/');
 //   });
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Test route is working!' });
+});
 
-app.post('/api/login', passport.authenticate('local', { failureRedirect: '/api/login' }),
- async (req, res) => {
-  
-  const info = req.body;
-  console.log("reached app.js --->>>>>" );
-  console.log(info);
-  
-  
-  // try {
-      // const data =  await db.collection('users').insertOne(info);
-      
-      res.json({status: true});
-    // } catch (error) {
-    //   console.log(error);
-    //   res.status(500).json({status: false, error: "Effor occurred while inserting data"});
-    // }
-   
+app.get("/", (req, res) => {
+  res.json("welcome to Dashboard");
+});
 
+app.get("/api/login", (req, res) => {
+  res.status(404).json({status: false});
+});
+
+app.get("/api/authStatus", async (req, res) => {
+   if(req.isAuthenticated())
+   {
+    res.json(
+      {status: true}
+    ) ;
+   }
+   else
+   res.json(
+    {status: false}
+  ) ;
+});
+
+app.get("/api/logout", (req, res, next) => {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    // Send a 200 response with a message
+    res.status(200).json({ msg: "logged out" });
+  });
+});
+
+
+app.post("/api/login", (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      console.error("Error during authentication:", err);
+      return res.status(500).json({ status: false, error: "Internal server error" });
+    }
+    if (!user) {
+      console.log("Authentication failed:", info.message);
+      return res.status(401).json({ status: false, message: info.message });
+    }
+    req.logIn(user, (err) => {
+      if (err) {
+        console.error("Error during login:", err);
+        return res.status(500).json({ status: false, error: "Internal server error" });
+      }
+      return res.json({ status: true });
+    });
+  })(req, res, next);
+});
+
+
+
+
+// app.post(
+//   "/api/login",
+//   passport.authenticate("local"), (req, res) =>{
+//     if(req.isAuthenticated()){
+//       res.json({status: true});
+//     }
+//     else
+//     res.json({status: false});
+//   }
+// );
+
+passport.use(
+  new Strategy(async function verify(username, password, done) {
+    try {
+      const user = await db.collection('users').findOne({ email: username });
+
+      if (!user) {
+        console.log("User not found");
+        return done(null, false, { message: 'User not found' });
+      }
+
+      if (user.password !== password) {
+        console.log("Incorrect password");
+        return done(null, false, { message: 'Incorrect password' });
+      }
+
+      console.log("Authentication successful");
+      return done(null, user);
+    } catch (err) {
+      console.error("Error in authentication strategy:", err);
+      return done(err);
+    }
+  })
+);
+
+
+passport.serializeUser((user, cb) => {
+  cb(null, user);
+});
+passport.deserializeUser((user, cb) => {
+  cb(null, user);
 });
 
 app.listen(port, () => {

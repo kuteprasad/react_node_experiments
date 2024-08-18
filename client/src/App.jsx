@@ -1,60 +1,39 @@
-import React, { useState } from 'react';
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import Login from './Login.jsx';
+import Home from './Home.jsx';
 
 function App() {
-  const [info, setInfo] = useState({
-    email:'',
-    password:''
-  });
-  const [status, setStatus] = useState(false);
+  const [authStatus, setAuthStatus] = useState(false);
+  const navigate = useNavigate();
 
-
-  const handleChange = (e) => {
-    // console.log(e.target);
-    const {name, value} = e.target;
-
-    setInfo(prevValue => ({
-      ...prevValue,
-      [name]:value
-    }))
-   
+  const checkAuthStatus = async () => {
+    try {
+      const res = await axios.get("/api/authStatus");
+      setAuthStatus(res.status === 200);
+      console.log("Auth status checked : ", res.status);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const  handleLogin = async () => {
-    console.log("handleLogin called");
-    console.log(info);
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
 
-   const obj = {
-      username: info.email,
-      password: info.password
+  useEffect(() => {
+    if (authStatus) {
+      navigate("/home");
+    } else {
+      navigate("/login");
     }
-    
-     try {
-      const res = await axios.post('/api/login', obj);
-
-      setStatus(res.data.status);
-     } catch (error) {
-      console.log(error);
-      throw error;
-     }
-  }
+  }, [authStatus, navigate]);
 
   return (
     <div>
-      {/* Creating a login form with mongoDb */}
-      <button>Login with Google</button>
-
-        <input type="email" name="email" id="email" value={info.email} onChange={handleChange}/>
-        <label htmlFor="email">Enter Email</label>
-
-        <input type="password" name="password" id="password" value={info.password} onChange={handleChange}/>
-
-        <label htmlFor="password">Enter Password</label>
-
-        <button onClick={handleLogin}>Login</button>
-
-        {status && <div> Logged in Successfully </div>}
-     
+      {/* Render a loading message or a fallback UI while checking auth status */}
+      {!authStatus ? <Login /> : <Home />}
     </div>
   );
 }
